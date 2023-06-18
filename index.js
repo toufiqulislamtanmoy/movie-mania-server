@@ -115,6 +115,19 @@ async function run() {
       res.send(result);
     })
 
+    // decrement credit when user click download button
+    app.patch('/user/credit/:email',async(req,res) =>{
+      const email = req.params.email;
+      const query = {email: email};
+      const findUser = await usersCollections.findOne(query);
+      if (findUser && findUser.credit > 0) {
+        const updatedUserCredit = await usersCollections.updateOne(query, { $inc: { credit: -1 } });
+        res.send(updatedUserCredit);
+      } else {
+        res.send({ message: "Insufficient credits" });
+      }
+    })
+
     client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
